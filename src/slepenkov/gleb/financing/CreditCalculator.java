@@ -1,10 +1,10 @@
 package slepenkov.gleb.financing;
 
 public class CreditCalculator {
-    public static double paymentCalculator(long creditSum, int period, double percent) {
+    public static long paymentCalculator(long creditSum, int period, double percent) {
         double monthlyPercent = percent / 12;
         double coeff = monthlyPercent * Math.pow(1 + monthlyPercent, period) / (Math.pow(1 + monthlyPercent, period) - 1);
-        return coeff * creditSum;
+        return Math.round(coeff * creditSum);
 
     }
 
