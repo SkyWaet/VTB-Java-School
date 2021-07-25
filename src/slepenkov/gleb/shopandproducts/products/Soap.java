@@ -1,4 +1,4 @@
-package slepenkov.gleb.hw6.products;
+package slepenkov.gleb.shopandproducts.products;
 
 public class Soap  extends Product {
     public Soap(String name, int price, double weight) {

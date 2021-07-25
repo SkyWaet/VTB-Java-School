@@ -1,4 +1,4 @@
-package slepenkov.gleb.hw6.exceptions;
+package slepenkov.gleb.shopandproducts.exceptions;
 
 /**
  * Данное исключение является непроверяемым, т.к. причина его возникновения -

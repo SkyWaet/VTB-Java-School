@@ -1,8 +1,9 @@
-package slepenkov.gleb.hw6.products;
+package slepenkov.gleb.shopandproducts.products;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public abstract class Product {
+public abstract class Product implements Serializable {
     private String name;
     private int price;
     protected String category;
