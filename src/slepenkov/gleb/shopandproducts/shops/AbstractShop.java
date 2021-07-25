@@ -7,10 +7,7 @@ import slepenkov.gleb.shopandproducts.search.SearchIndex;
 
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 public abstract class AbstractShop<PT extends Product> implements Serializable {
@@ -57,6 +54,10 @@ public abstract class AbstractShop<PT extends Product> implements Serializable {
     }
 
     public abstract List<PT> filterByPrice(int price);
+
+    public List<PT> filterByPattern(String pattern) {
+        return index.findByPattern(pattern.toLowerCase());
+    }
 
     public List<PT> filterByKey(String pattern) {
         return index.find(pattern.toLowerCase());

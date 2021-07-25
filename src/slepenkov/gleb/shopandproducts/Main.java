@@ -36,12 +36,8 @@ public class Main {
         supermarket.printProducts();
         System.out.println();
 
-        System.out.println(supermarket.toString());
-
-        System.out.println("Удалим наполеон");
-        supermarket.deleteByKey("Наполеон");
-        System.out.println(supermarket.toString());
-        System.out.println(supermarket.filterByKey("торт"));
+        System.out.println("Найдем все товары, содержащие в навзвании слово \"ябло\"");
+        System.out.println(supermarket.filterByPattern("*"));
 
     }
 }
