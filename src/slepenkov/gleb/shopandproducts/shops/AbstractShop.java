@@ -3,6 +3,7 @@ package slepenkov.gleb.shopandproducts.shops;
 import slepenkov.gleb.shopandproducts.exceptions.ProductLimitReachedException;
 import slepenkov.gleb.shopandproducts.exceptions.ProductWithKeywordNotFound;
 import slepenkov.gleb.shopandproducts.products.*;
+import slepenkov.gleb.shopandproducts.search.SearchIndex;
 
 
 import java.io.*;
@@ -14,12 +15,12 @@ import java.util.function.Predicate;
 
 public abstract class AbstractShop<PT extends Product> implements Serializable {
     private final String shopName;
-    protected final Set<PT> listOfGoods = new HashSet<>();
-    private final int limit;
+    protected final SearchIndex<PT> index;
+
 
     public AbstractShop(String shopName, int limit) {
         this.shopName = shopName;
-        this.limit = limit;
+        this.index = new SearchIndex<>(limit);
     }
 
     public void save() {
@@ -40,55 +41,34 @@ public abstract class AbstractShop<PT extends Product> implements Serializable {
     }
 
     public void addProducts(PT product) {
-        if (listOfGoods.size() < limit) {
-            listOfGoods.add(product);
-        } else {
-            throw new ProductLimitReachedException();
-        }
+        index.add(product);
     }
 
     public void printProducts() {
-        for (var elem : listOfGoods) {
-            System.out.println(elem);
-        }
+        System.out.println(index.printList());
     }
 
     public void deleteByKey(String key) {
-        List<PT> found = filterByPattern(key);
-        if (found.size() == 0) {
-            throw new ProductWithKeywordNotFound(key);
-        }
-        for (var elem : found) {
-            listOfGoods.remove(elem);
-        }
+        index.delete(key.toLowerCase());
     }
 
     public int countGoods() {
-        return listOfGoods.size();
-    }
-
-    protected <RT extends Product> List<RT> filterBy(Predicate<PT> condition) {
-        List<RT> result = new ArrayList<>();
-        for (var elem : listOfGoods) {
-            if (condition.test(elem)) {
-                result.add((RT) elem);
-            }
-        }
-        return result;
+        return index.size();
     }
 
     public abstract List<PT> filterByPrice(int price);
 
-    public abstract List<PT> filterByPattern(String pattern);
+    public List<PT> filterByKey(String pattern) {
+        return index.find(pattern.toLowerCase());
+    }
 
     public abstract List<PT> filterByShelfLife(int limit);
 
     public String toString() {
         StringBuilder buff = new StringBuilder();
         buff.append(String.format("Магазин %s. Ассортимент: \n", shopName));
-        for (var elem : listOfGoods) {
-            buff.append(elem.toString() + "\n");
-        }
+        buff.append(index.printList() + "\n");
+        buff.append(index.printIndex());
         return buff.toString();
     }
 

@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) {
-        Supermarket supermarket = new Supermarket(100, "Супермаркет");
+        Supermarket supermarket = new Supermarket("Супермаркет", 100);
         Book studentsBook = new Book("Английский яз", 20, 0.2);
         Book warAndPeace = new Book("Война и мир", 20, 0.8);
         Soap regularSoap = new Soap("Обычное мыло", 3, 0.1);
@@ -36,13 +36,12 @@ public class Main {
         supermarket.printProducts();
         System.out.println();
 
-        System.out.println(supermarket.getIndex());
+        System.out.println(supermarket.toString());
 
         System.out.println("Удалим наполеон");
         supermarket.deleteByKey("Наполеон");
-        System.out.println(supermarket.getIndex());
-        System.out.println(Arrays.toString("*ябло*".split("\\*")));
-        System.out.println(supermarket.filterByPattern("ябло*"));
+        System.out.println(supermarket.toString());
+        System.out.println(supermarket.filterByKey("торт"));
 
     }
 }
