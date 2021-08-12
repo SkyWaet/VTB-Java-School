@@ -1,23 +1,42 @@
 package slepenkov.gleb.shopandproducts.shops;
 
-import slepenkov.gleb.shopandproducts.exceptions.ProductLimitReachedException;
-import slepenkov.gleb.shopandproducts.exceptions.ProductWithKeywordNotFound;
-import slepenkov.gleb.shopandproducts.products.*;
+import slepenkov.gleb.shopandproducts.hr.HRService;
+import slepenkov.gleb.shopandproducts.hr.MyHR;
+import slepenkov.gleb.shopandproducts.products.Product;
+import slepenkov.gleb.shopandproducts.search.Index;
 import slepenkov.gleb.shopandproducts.search.SearchIndex;
 
-
 import java.io.*;
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.List;
+import java.util.Objects;
 
 public abstract class AbstractShop<PT extends Product> implements Serializable {
-    private final String shopName;
-    protected final SearchIndex<PT> index;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractShop<?> that = (AbstractShop<?>) o;
+        return Objects.equals(shopName, that.shopName) && Objects.equals(index, that.index) && Objects.equals(hr, that.hr);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(shopName, index, hr);
+    }
+
+    private final String shopName;
+    protected final Index<PT> index;
+    protected final HRService hr = new MyHR(this);
 
     public AbstractShop(String shopName, int limit) {
         this.shopName = shopName;
         this.index = new SearchIndex<>(limit);
+    }
+
+
+    public Index<PT> getIndex() {
+        return index;
     }
 
     public void save() {
@@ -36,6 +55,8 @@ public abstract class AbstractShop<PT extends Product> implements Serializable {
         }
         return null;
     }
+
+    public abstract boolean buyProduct(Product product);
 
     public void addProducts(PT product) {
         index.add(product);
@@ -73,4 +94,11 @@ public abstract class AbstractShop<PT extends Product> implements Serializable {
         return buff.toString();
     }
 
+    public HRService getHr() {
+        return hr;
+    }
+
+    public String getShopName() {
+        return shopName;
+    }
 }

@@ -1,6 +1,7 @@
 package slepenkov.gleb.shopandproducts.impl;
 
 import slepenkov.gleb.shopandproducts.products.Cake;
+import slepenkov.gleb.shopandproducts.products.Product;
 import slepenkov.gleb.shopandproducts.shops.AbstractShop;
 import slepenkov.gleb.shopandproducts.shops.CakeShop;
 
@@ -9,6 +10,11 @@ import java.util.List;
 public class SweetShop extends AbstractShop<Cake> implements CakeShop {
     public SweetShop(String shopName, int limit) {
         super(shopName, limit);
+    }
+
+    @Override
+    public boolean buyProduct(Product product) {
+        return hr.getEmployee().sell(product, null);
     }
 
     @Override

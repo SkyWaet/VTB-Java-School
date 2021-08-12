@@ -6,21 +6,37 @@ import slepenkov.gleb.shopandproducts.exceptions.ProductWithKeywordNotFound;
 import slepenkov.gleb.shopandproducts.products.Product;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class SearchIndex<PT extends Product> {
+public class SearchIndex<PT extends Product> implements Index<PT> {
     private final Map<String, Set<PT>> index = new HashMap<>();
-    protected final Set<PT> list = new HashSet<>();
+    private final Set<PT> listOfProducts = new HashSet<>();
     private final int limit;
 
     public SearchIndex(int limit) {
         this.limit = limit;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SearchIndex<?> that = (SearchIndex<?>) o;
+        return limit == that.limit && Objects.equals(index, that.index) && Objects.equals(listOfProducts, that.listOfProducts);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(index, listOfProducts, limit);
+    }
+
     public String printList() {
         StringBuilder result = new StringBuilder();
         result.append("Список товаров: [\n");
-        for (var elem : list) {
+        for (var elem : listOfProducts) {
             result.append(elem + "\n");
         }
         result.append("]");
@@ -41,9 +57,21 @@ public class SearchIndex<PT extends Product> {
         return result.toString();
     }
 
+    public Stream<PT> getCompetitors(PT competitor) {
+        return Stream.of(competitor)
+                .flatMap(elem -> Arrays.asList(elem.getName().toLowerCase().split(" ")).stream())
+                .flatMap(token -> index.get(token).stream())
+                .collect(Collectors.toMap(Function.identity(), count -> 1, (oldValue, newValue) -> oldValue + 1))
+                .entrySet()
+                .stream()
+                .sorted(Comparator.comparing(Map.Entry<PT, Integer>::getValue).reversed())
+                .map(Map.Entry::getKey)
+                .filter(elem -> !elem.equals(competitor));
+    }
+
     public void add(PT product) {
-        if (list.size() < limit) {
-            list.add(product);
+        if (listOfProducts.size() < limit) {
+            listOfProducts.add(product);
             String[] tokens = product.getName().split(" ");
             for (var token : tokens) {
                 String lcToken = token.toLowerCase();
@@ -57,12 +85,12 @@ public class SearchIndex<PT extends Product> {
     }
 
     public int size() {
-        return list.size();
+        return listOfProducts.size();
     }
 
     public <RT extends Product> List<RT> filterBy(Predicate<PT> condition) {
         List<RT> result = new ArrayList<>();
-        for (var elem : list) {
+        for (var elem : listOfProducts) {
             if (condition.test(elem)) {
                 result.add((RT) elem);
             }
@@ -94,8 +122,7 @@ public class SearchIndex<PT extends Product> {
             return find(elem -> !elem.isEmpty());
         } else if (!pattern.contains("*")) {
             return find(elem -> elem.equals(lcPattern));
-        }
-        else if (pattern.startsWith("*")) {
+        } else if (pattern.startsWith("*")) {
             return find(elem -> elem.endsWith(lcPattern.substring(1)));
         } else if (pattern.endsWith("*")) {
             return find(elem -> elem.startsWith(lcPattern.substring(0, lcPattern.length() - 1)));
@@ -119,7 +146,7 @@ public class SearchIndex<PT extends Product> {
                     index.remove(lcToken);
                 }
             }
-            list.remove(product);
+            listOfProducts.remove(product);
         }
     }
 
